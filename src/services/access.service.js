@@ -132,7 +132,7 @@ class AccessService {
                     message: 'Shop already registered'
                 }
             }
-            console.log("1******************************")
+            
             
 
             const passwordHash = await bcrypt.hash(password, 10)

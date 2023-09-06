@@ -1,7 +1,6 @@
 'use strict'
 
 const JWT = require('jsonwebtoken')
-const { model } = require('mongoose')
 
 const createTokenPair = async (payload, publicKey, privateKey) => {
     try {
