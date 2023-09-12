@@ -105,10 +105,15 @@
 const shopModel = require("../models/shop.model")
 const bcrypt = require('bcrypt')
 const crypto = require('node:crypto')
-const KeyTokenService = require("./keyToken.service")
 const { createTokenPair } = require("../auth/authUtils")
 const { Console } = require("console")
 const { getInfoData } = require("../utils")
+const { BadRequestError,  } = require("../core/error.response")
+
+//service------------------
+const KeyTokenService = require("./keyToken.service")
+const { findByEmail } = require("./shop.service")
+const { AuthFailureError } = require("../core/success.response")
 
 
 const roleShop = {
@@ -119,18 +124,55 @@ const roleShop = {
 }
 
 class AccessService {
+    /*
+    cách bước sevice 
+        1. check email
+        2. match password
+        3. create privateKey and publicKey
+        4. generate token
+        5. get data return login
+    */
+   static login = async ({ email, password, refreshToken = null }) => {
+        //1
+        const foundShop = await findByEmail({ email })
+        console.log('foundShop::::: ', foundShop)
+        if(!foundShop)  throw new BadRequestError('Shop not regitered')
+        //2
+        const match = await bcrypt.compare(password, foundShop.password)
+        if(!match) throw new AuthFailureError('Authentication error')
+        //3
+        // create privateKey and publicKey
+        const  privateKey = crypto.randomBytes(64).toString('hex')
+        const  publicKey = crypto.randomBytes(64).toString('hex')
+        //4. generate token
+        console.log("ahahahha:::::")
+        const tokens = await createTokenPair({ userId: foundShop._id, email }, publicKey, privateKey)
+        //5. get data return login
+        await KeyTokenService.createKeyToken( { 
+            publicKey, 
+            privateKey, 
+            refreshToken: tokens.refreshToken
+        })
+
+        //5 get data return login
+        console.log('shop, token::::::::: ',  getInfoData({ fileds: ['_id', 'name', 'email'], object: foundShop }),tokens)
+        
+        return {
+            shop: getInfoData({ fileds: ['_id', 'name', 'email'], object: foundShop }),
+            tokens
+        }      
+   }
+
+
     static  signUp = async ({ name, email, password }) => {
-        try {
+        
             //step 1: check email exists??
             console.log("1******************************")
             const hodelShop = await shopModel.findOne({ email })
             console.log("1")
          
             if(hodelShop){
-                return {
-                    code: 'xxx',
-                    message: 'Shop already registered'
-                }
+                throw new BadRequestError('Error: Shop already  regitered!')
             }
             
             
@@ -169,11 +211,8 @@ class AccessService {
 
     
                 return {
-                    code: 201,
-                    metadata: {
-                        shop: getInfoData({ fileds: ['_id', 'name', 'email'], object: newShop }),
-                        tokens
-                    }
+                    shop: getInfoData({ fileds: ['_id', 'name', 'email'], object: newShop }),
+                    tokens
                 }
             }
 
@@ -183,14 +222,6 @@ class AccessService {
                 
             }
            
-
-        } catch (error) {
-            return{
-                code: 'xxx',
-                message: error.message,
-                status: 'error'
-            }
-        }
     }
 }
 module.exports = AccessService

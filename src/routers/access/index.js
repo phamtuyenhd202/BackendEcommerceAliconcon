@@ -2,7 +2,10 @@
 const express = require('express')
 const router = express.Router()
 const AccessController = require('../../controllers/access.controller')
-
-router.post('/shop/signup', AccessController.signUp)
+const { asyncHandler } = require('../../auth/checkAuth')
+//signUp
+router.post('/shop/signup', asyncHandler(AccessController.signUp))
+//login
+router.post('/shop/login', asyncHandler(AccessController.login))
 
 module.exports = router

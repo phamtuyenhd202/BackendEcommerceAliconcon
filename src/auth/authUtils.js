@@ -9,7 +9,7 @@ const createTokenPair = async (payload, publicKey, privateKey) => {
             */
         //const accessToken = JWT.sign(payload, privateKey, {   
 
-        const accessToken = JWT.sign(payload, privateKey, {
+        const accessToken = JWT.sign(payload, publicKey, {
             /*
                 khi dùng signUp level maxxxxx thêm tên thuật toán
             */
@@ -29,7 +29,6 @@ const createTokenPair = async (payload, publicKey, privateKey) => {
             }else{
                 console.log('decode verify:: ', decode)
             }
-
         })
         return {accessToken, refreshToken}
 

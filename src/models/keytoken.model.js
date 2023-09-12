@@ -20,6 +20,14 @@ var keyTokenSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    refreshTokensUsed: { //nhung AccessToken da duoc su dung
+        type: Array,
+        default: []
+    },
+    refreshToken: {
+        type: String,
+        required: true
+    }
 },{
     collection: COLLECTION_NAME,
     timestamps: true

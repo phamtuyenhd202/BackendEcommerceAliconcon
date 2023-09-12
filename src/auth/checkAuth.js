@@ -1,6 +1,7 @@
 'use strict'
 
 const { findById } = require('../services/apiKey.service')
+const crypto = require('node:crypto')
 
 const HEADER = {
     API_KEY: 'x-api-key',
@@ -32,17 +33,19 @@ const apiKey = async (req, res, next) => {
     }
 }
 
+
+
 // check permission
 const  permission = ( permission ) => {
     return (req, res, next) => {
-        console.log('vvvvvvvvvvvvvvv::::::::::', req.objKey.permissions)
+        // console.log('vvvvvvvvvvvvvvv::::::::::', req.objKey.permissions)
         if(!req.objKey.permissions){
             return res.status(403).json({
                 message: 'permission denied'
             })
         }
 
-        console.log('permission:: ', req.objKey.permissions)
+        // console.log('permission:: ', req.objKey.permissions)
         const validPermission = req.objKey.permissions.includes(permission)
         if(!validPermission){
             return res.status(403).json({
@@ -53,7 +56,14 @@ const  permission = ( permission ) => {
         return next()
     }
 }
+
+const asyncHandler = fn => {
+    return (req, res, next) => {
+        fn(req, res, next).catch(next)
+    }
+}
 module.exports = {
     apiKey,
-    permission
+    permission,
+    asyncHandler
 }
