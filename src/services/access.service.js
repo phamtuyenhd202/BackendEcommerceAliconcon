@@ -113,7 +113,7 @@ const { BadRequestError,  } = require("../core/error.response")
 //service------------------
 const KeyTokenService = require("./keyToken.service")
 const { findByEmail } = require("./shop.service")
-const { AuthFailureError } = require("../core/success.response")
+const { AuthFailureError } = require("../core/error.response")
 
 
 const roleShop = {
@@ -124,6 +124,8 @@ const roleShop = {
 }
 
 class AccessService {
+    
+   static login = async ({ email, password, refreshToken = null }) => {
     /*
     cách bước sevice 
         1. check email
@@ -132,10 +134,8 @@ class AccessService {
         4. generate token
         5. get data return login
     */
-   static login = async ({ email, password, refreshToken = null }) => {
         //1
         const foundShop = await findByEmail({ email })
-        console.log('foundShop::::: ', foundShop)
         if(!foundShop)  throw new BadRequestError('Shop not regitered')
         //2
         const match = await bcrypt.compare(password, foundShop.password)
@@ -145,24 +145,32 @@ class AccessService {
         const  privateKey = crypto.randomBytes(64).toString('hex')
         const  publicKey = crypto.randomBytes(64).toString('hex')
         //4. generate token
-        console.log("ahahahha:::::")
+   
         const tokens = await createTokenPair({ userId: foundShop._id, email }, publicKey, privateKey)
-        //5. get data return login
-        await KeyTokenService.createKeyToken( { 
-            publicKey, 
-            privateKey, 
-            refreshToken: tokens.refreshToken
+
+        await KeyTokenService.createKeyToken({
+          refreshToken: tokens.refreshToken,
+          publicKey,
+          privateKey,
+          userId: foundShop._id,
         })
 
         //5 get data return login
-        console.log('shop, token::::::::: ',  getInfoData({ fileds: ['_id', 'name', 'email'], object: foundShop }),tokens)
-        
         return {
             shop: getInfoData({ fileds: ['_id', 'name', 'email'], object: foundShop }),
             tokens
         }      
    }
 
+   //logout::::
+
+    static logout = async (keyStore) => {
+        console.log('delKey::::', 123)
+        const delKey = await KeyTokenService.deleteById( keyStore._id )
+        console.log('delKey::::', { delKey })
+        return delKey
+
+    }
 
     static  signUp = async ({ name, email, password }) => {
         
@@ -190,14 +198,16 @@ class AccessService {
                 const  publicKey = crypto.randomBytes(64).toString('hex')
                  
                 console.log({ privateKey, publicKey }) // save collection keyStore
+
+                
         
                 const keyStore = await KeyTokenService.createKeyToken({
                     userId: newShop._id,
                     publicKey, 
-                    privateKey
+                    privateKey,
+                    
                 })
-                
-    
+                   
                 if(!keyStore){
                     return {
                         code: 'xxx',
