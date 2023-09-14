@@ -6,6 +6,18 @@ const shopModel = require('../models/shop.model')
 const { CREATED, SuccessResponse } = require("../core/success.response")
 
 class AccessController{
+
+    //handlerRefresh Token
+    handlerRefreshTokenV2 = async (req, res, next) => {
+        new SuccessResponse({
+            message: 'Get toKen success!!',
+            metadata: await AccessService.handlerRefreshTokenV2({
+                refreshToken: req.refreshToken,
+                user: req.user,
+                keyStore: req.keyStore
+            })
+        }).send(res)  
+    }
     //login
     login = async (req, res, next) => {
         new SuccessResponse({
