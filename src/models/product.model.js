@@ -1,12 +1,12 @@
 'use strict'
 
-const { mongoose, Schema, Types } = require('mongoose'); // Erase if already required
+const { mongoose, Schema, Types, model } = require('mongoose'); // Erase if already required
 const slugify = require('slugify')
 const DOCUMENT_NAME = 'product'
 const COLLECTION_NAME = 'products'
 
 // Declare the Schema of the Mongo model
-const productSchema = new mongoose.Schema({
+const productSchema = new Schema({
     product_name: { type:String, required:true, },
     product_thumb: { type:String, required:true, },
     product_description: String,
@@ -32,6 +32,9 @@ const productSchema = new mongoose.Schema({
     collection: COLLECTION_NAME,
     timestamps: true
 });
+
+//create index for search
+productSchema.index({ product_name: 'text', product_description: 'text' })
 
 // documemt middelware: run before .save() and create().....
 productSchema.pre('save', function( next ){
@@ -80,10 +83,10 @@ const furnitureSchema = new Schema({
 
 //Export the model
 module.exports = {
-    product: mongoose.model(DOCUMENT_NAME, productSchema),
-    electronic: mongoose.model('electronic', electronicSchema),
-    clothing: mongoose.model('clothing', clothingSchema),
-    furniture: mongoose.model('furniture', furnitureSchema)
+    product: model(DOCUMENT_NAME, productSchema),
+    electronic: model('electronic', electronicSchema),
+    clothing: model('clothing', clothingSchema),
+    furniture: model('furniture', furnitureSchema)
 }
 
 
