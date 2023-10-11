@@ -42,6 +42,11 @@ const updateNestedObjectParser = obj => {
     return final
 }
 
+const  findObjectById = (arr, id) => {
+    
+    return arr.find(obj => obj.productId === id);
+  } 
+
 module.exports = {
     getInfoData,
     getSelectData,
@@ -49,4 +54,5 @@ module.exports = {
     removeUndefinedObject,
     updateNestedObjectParser,
     convertToObjectIdMongodb,
+    findObjectById,
 }
