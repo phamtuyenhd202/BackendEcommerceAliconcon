@@ -32,6 +32,5 @@ module.exports = {
     OK,
     CREATED,    
     SuccessResponse,
-
 }
 

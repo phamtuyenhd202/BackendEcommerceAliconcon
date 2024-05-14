@@ -161,6 +161,7 @@ class DiscountService {
                 discount_shopId: convertToObjectIdMongodb(shopId)
             }
         })
+        
         if(!foundDiscount) throw new NotFoundError(`discount dosen't exists`)
 
         const {

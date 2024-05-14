@@ -93,10 +93,6 @@ class CartService {
         //check product nay có tồn tại hay không
         const foundProduct = await getProductById(productId)
         if(!foundProduct) throw new NotFoundError('Product does not exist')
-
-        console.log('foundProduct.product_shop::::', foundProduct.product_shop)
-        console.log('foundProduct.product_shop::::', shop_order_ids[0]?.shopId)
-
         //compare
         if(foundProduct.product_shop.toString() !== shop_order_ids[0]?.shopId){
             throw new NotFoundError('Product do not belong to the shop')
